@@ -44,11 +44,11 @@ class TenantCompany {
       //convert buffer to stream using streamifier
       const logo =  streamifier.createReadStream(responseGetData[0].logo)
       // console.log(logo);
-      const blob_name = 'images'+req.params.id
+      const blob_name = 'images'+req.params.id+'.png'
       // res.status(200).json(logo)
 
       let promUpload = () => new Promise((resolve,reject) => {
-        blobService.createBlockBlobFromStream(process.env.AZURE_CONTAINER, blob_name, logo, 11, (error) => {
+        blobService.createBlockBlobFromStream(process.env.AZURE_CONTAINER, blob_name, logo, 1000000, (error) => {
           if (error) {
              console.log(error);
              reject(error)
@@ -65,6 +65,7 @@ class TenantCompany {
       // console.log(logo_url);
       if (responseUpload.status) {
         const updateBBUrl = await tenant_company.updateLogoUrl(req.params.id,responseUpload.logo_url)
+        console.log(responseUpload.logo_url);
         res.status(200).json({
           message: 'Data updated',
           data: responseUpload.logo_url
@@ -78,7 +79,7 @@ class TenantCompany {
   }
   static async removeLogoUrl(req,res) {
     let promRemove = () => new Promise((resolve,reject) => {
-        blobService.deleteBlobIfExists(process.env.AZURE_CONTAINER, 'images'+req.params.id, function(error, result) {
+        blobService.deleteBlobIfExists(process.env.AZURE_CONTAINER, 'images'+req.params.id+'.png', function(error, result) {
           if (error) {
             // Delete blob failed
             console.log(error);
@@ -94,7 +95,8 @@ class TenantCompany {
     const removeLogoStorage = await promRemove()
     if (removeLogoStorage) {
       const removeLogoDB = await tenant_company.removeLogoUrl(req.params.id)
-      if (removeLogoDB.id) {
+      // console.log('asdfasdf',removeLogoDB);
+      if (removeLogoDB===req.params.id) {
         res.status(200).json({
           message:'remove logo url successfully',
           data:removeLogoDB.id

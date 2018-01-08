@@ -12,7 +12,7 @@ const db = pgp(con);
 class TenantCompany {
   static async findAll(){
     try {
-      const response = await db.any('SELECT * FROM tenant_company')
+      const response = await db.any('SELECT * FROM tenant_company ORDER BY company_id')
       return response
     } catch (err) {
       return(err);
